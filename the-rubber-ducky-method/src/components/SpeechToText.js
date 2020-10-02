@@ -1,97 +1,81 @@
-import React, { Component } from "react"
+import React, { useState, useEffect } from 'react'
 
-//------------------------SPEECH RECOGNITION-----------------------------
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition
+const mic = new SpeechRecognition()
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-const recognition = new SpeechRecognition()
+mic.continuous = true
+mic.interimResults = true
+mic.lang = 'en-US'
 
-recognition.continous = true
-recognition.interimResults = true
-recognition.lang = 'en-US'
+function Speech() {
+  const [isListening, setIsListening] = useState(false)
+  const [note, setNote] = useState(null)
+  const [savedNotes, setSavedNotes] = useState([])
 
+  useEffect(() => {
+    handleListen()
+  }, [isListening])
 
-//------------------------COMPONENT-----------------------------
-
-class Speech extends Component {
-
-  constructor() {
-    super()
-    this.state = {
-      listening: false
-    }
-    this.toggleListen = this.toggleListen.bind(this)
-    this.handleListen = this.handleListen.bind(this)
-  }
-
-  toggleListen() {
-    this.setState({
-      listening: !this.state.listening
-    }, this.handleListen)
-  }
-
-  handleListen() {
-
-    console.log('listening?', this.state.listening)
-
-    if (this.state.listening) {
-      recognition.start()
-      recognition.onend = () => {
-        console.log("...continue listening...")
-        recognition.start()
+  const handleListen = () => {
+    if (isListening) {
+      mic.start()
+      mic.onend = () => {
+        console.log('continue..')
+        mic.start()
       }
-
     } else {
-      recognition.stop()
-      recognition.onend = () => {
-        console.log("Stopped listening per click")
+      mic.stop()
+      mic.onend = () => {
+        console.log('Stopped Mic on Click')
       }
     }
-
-    recognition.onstart = () => {
-      console.log("Listening!")
+    mic.onstart = () => {
+      console.log('Mics on')
     }
 
-    let finalTranscript = ''
-    recognition.onresult = event => {
-      let interimTranscript = ''
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) finalTranscript += transcript + ' ';
-        else interimTranscript += transcript;
-      }
-      document.getElementById('interim').innerHTML = interimTranscript
-      document.getElementById('final').innerHTML = finalTranscript
-
-    //-------------------------COMMANDS------------------------------------
-
-      const transcriptArr = finalTranscript.split(' ')
-      const stopCmd = transcriptArr.slice(-3, -1)
-      console.log('stopCmd', stopCmd)
-
-      if (stopCmd[0] === 'stop' && stopCmd[1] === 'listening'){
-        recognition.stop()
-        recognition.onend = () => {
-          console.log('Stopped listening per command')
-          const finalText = transcriptArr.slice(0, -3).join(' ')
-          document.getElementById('final').innerHTML = finalText
-        }
+    mic.onresult = event => {
+      const transcript = Array.from(event.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('')
+      console.log(transcript)
+      setNote(transcript)
+      mic.onerror = event => {
+        console.log(event.error)
       }
     }
-    
-  //-----------------------------------------------------------------------
-    
-    recognition.onerror = event => {
-      console.log("Error occurred in recognition: " + event.error)
-    }
-
   }
 
-  render() {
-    return (
-        <button onClick={this.toggleListen}>record</button>
-    )
+  const handleSaveNote = () => {
+    setSavedNotes([...savedNotes, note])
+    setNote('')
   }
+
+  return (
+    <>
+      <h1>Voice Notes</h1>
+      <div className="container">
+        <div className="box">
+          <h2>Current Note</h2>
+          {isListening ? <span>🎙️</span> : <span>🛑🎙️</span>}
+          <button onClick={handleSaveNote} disabled={!note}>
+            Save Note
+          </button>
+          <button onClick={() => setIsListening(prevState => !prevState)}>
+            Start/Stop
+          </button>
+          <p>{note}</p>
+        </div>
+        <div className="box">
+          <h2>Notes</h2>
+          {savedNotes.map(n => (
+            <p key={n}>{n}</p>
+          ))}
+        </div>
+      </div>
+    </>
+  )
 }
 
-export default Speech
+export default Speech;
