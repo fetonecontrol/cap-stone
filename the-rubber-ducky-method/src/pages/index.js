@@ -7,10 +7,10 @@ import Footer from '../components/Footer'
 
 import { createStore } from "redux";
 import { Provider } from "react-redux";
-import { ReactReduxFirebaseProvider } from 'react-redux-firebase';
-import { createFirestoreInstance } from 'redux-firestore';
+import fireReducer from "../reducers/index";
+import { ReactReduxFirebaseProvider } from "react-redux-firebase";
+import { createFirestoreInstance } from "redux-firestore";
 import firebase from "../firebase";
-import fireReducer from "../reducers/";
 
 
 const store = createStore(fireReducer);
