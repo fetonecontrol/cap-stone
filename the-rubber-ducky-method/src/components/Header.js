@@ -8,8 +8,8 @@ const Header = props => (
     </div>
     <div className="content">
       <div className="inner">
-        <h1>The Rubber Ducky Method</h1>
-        <p>Helping you find the answers.</p>
+        <h1>LOCAL WEATHER</h1>
+        // WEATHER API VISUAL
       </div>
     </div>
     <nav>
