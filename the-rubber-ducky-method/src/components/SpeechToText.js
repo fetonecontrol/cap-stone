@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useFirestore } from 'react-redux-firebase'
 
-
 const SpeechRecognition =
-window.SpeechRecognition || window.webkitSpeechRecognition
+  window.SpeechRecognition || window.webkitSpeechRecognition
 const mic = new SpeechRecognition()
 
 mic.continuous = true
@@ -14,7 +13,6 @@ function Speech() {
   const [isListening, setIsListening] = useState(false)
   const [note, setNote] = useState(null)
   const [savedNotes, setSavedNotes] = useState([])
-  const firestore = useFirestore();
 
   useEffect(() => {
     handleListen()
@@ -42,15 +40,8 @@ function Speech() {
         .map(result => result[0])
         .map(result => result.transcript)
         .join('')
-      console.log(transcript),
-
-      firestore.collection('memos').add(
-        {
-          body: event.target.body.value,
-          
-          timeOpen: firestore.FieldValue.serverTimestamp()
-        },
-
+      console.log(transcript)
+      setNote(transcript)
       mic.onerror = event => {
         console.log(event.error)
       }

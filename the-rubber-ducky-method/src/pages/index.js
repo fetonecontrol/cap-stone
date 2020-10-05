@@ -5,12 +5,15 @@ import Header from '../components/Header'
 import Main from '../components/Main'
 import Footer from '../components/Footer'
 
+import { createStore } from "redux";
+import { Provider } from "react-redux";
 import { ReactReduxFirebaseProvider } from 'react-redux-firebase';
 import { createFirestoreInstance } from 'redux-firestore';
-import firebase from "./firebase";
+import firebase from "../firebase";
+import fireReducer from "../reducers/";
 
 
-const store = createStore(rootReducer);
+const store = createStore(fireReducer);
 
 const rrfProps = {
   firebase,
@@ -107,9 +110,9 @@ class IndexPage extends React.Component {
   }
 
   render() {
-    <Provider store={store}>
-      <ReactReduxFirebaseProvider {...rrfProps}>
           return (
+    <ReactReduxFirebaseProvider {...rrfProps}>
+      <Provider store={store}>
             <Layout location={this.props.location}>
               <div className={`body ${this.state.loading} ${this.state.isArticleVisible ? 'is-article-visible' : ''}`}>
                 <div id="wrapper">
@@ -127,9 +130,9 @@ class IndexPage extends React.Component {
                 <div id="bg"></div>
               </div>
             </Layout>
+      </Provider>
+    </ReactReduxFirebaseProvider>
           )
-        </ReactReduxFirebaseProvider>
-  </Provider>
   }
 }
 
